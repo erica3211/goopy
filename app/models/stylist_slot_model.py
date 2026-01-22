@@ -13,4 +13,4 @@ class StylistSlot(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
-    visits = relationship("Visit", back_populates="slot")
+    waiting = relationship("Waiting", back_populates="slot")

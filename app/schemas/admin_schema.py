@@ -8,6 +8,11 @@ class AdminCreate(BaseModel):
     password: str
     role: str  # OWNER / STAFF
 
+class AdminUpdate(BaseModel):
+    id: str
+    username: str
+    password: str
+    role: str
 
 class AdminResponse(BaseModel):
     id: str

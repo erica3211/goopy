@@ -1,6 +1,6 @@
 import enum
 
-class VisitStatus(str, enum.Enum):
+class WaitingStatus(str, enum.Enum):
     WAITING = "WAITING"
     IN_PROGRESS = "IN_PROGRESS"
     DONE = "DONE"
