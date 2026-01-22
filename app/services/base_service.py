@@ -1,0 +1,55 @@
+from typing import Type, TypeVar, Generic, List
+from sqlalchemy.orm import Session
+from fastapi import HTTPException
+
+from app.core.pagination import paginate
+
+ModelType = TypeVar("ModelType")
+
+
+class BaseService(Generic[ModelType]):
+    model: Type[ModelType] = None  # 반드시 상속 클래스에서 지정
+
+    def __init__(self, db: Session):
+        self.db = db
+
+    # 단건 조회
+    def get(self, id: int) -> ModelType:
+        obj = self.db.query(self.model).get(id)
+        if not obj:
+            raise HTTPException(status_code=404, detail="데이터를 찾을 수 없습니다.")
+        return obj
+
+    # 전체 조회
+    def get_all(self) -> List[ModelType]:
+        return self.db.query(self.model).all()
+
+    # 생성
+    def create(self, obj_in: dict) -> ModelType:
+        obj = self.model(**obj_in)
+        self.db.add(obj)
+        self.db.commit()
+        self.db.refresh(obj)
+        return obj
+
+    # ✅ 수정
+    def update(self, id: int, obj_in: dict) -> ModelType:
+        obj = self.get(id)
+
+        for field, value in obj_in.items():
+            setattr(obj, field, value)
+
+        self.db.commit()
+        self.db.refresh(obj)
+        return obj
+
+    # 삭제
+    def delete(self, id: int):
+        obj = self.get(id)
+        self.db.delete(obj)
+        self.db.commit()
+
+    # 페이징
+    def paginate(self, page: int = 1, size: int = 10):
+        query = self.db.query(self.model)
+        return paginate(query, page, size)

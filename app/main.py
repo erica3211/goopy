@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from app.core.exceptions import http_exception_handler
 from app.database import engine
 from app.models import customer_model, visit_model, stylist_slot_model
 from app.routers.customer_router import router as customer_router
@@ -7,6 +8,7 @@ from app.routers.admin_router import router as admin_router
 from app.database import Base
 
 app = FastAPI()
+app.add_exception_handler(HTTPException, http_exception_handler)
 
 Base.metadata.create_all(bind=engine)
 

@@ -1,14 +1,12 @@
-from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from app.services.base_service import BaseService
 from app.models.customer_model import Customer
-from app.schemas.customer_schema import CustomerCreate
 
-def create_customer(db: Session, dto: CustomerCreate):
-    if db.query(Customer).filter(Customer.phone == dto.phone).first():
-        raise HTTPException(status_code=400, detail="이미 등록된 전화번호입니다")
+class CustomerService(BaseService):
+    model = Customer
+    
 
-    customer = Customer(name=dto.name, phone=dto.phone)
-    db.add(customer)
-    db.commit()
-    db.refresh(customer)
-    return customer
+    # 고객만의 규칙은 여기서 추가
+    def create_customer(self, obj_in: dict):
+        if self.db.query(Customer).filter(Customer.phone == obj_in["phone"]).first():
+            raise ValueError("이미 등록된 전화번호입니다.")
+        return self.create(obj_in)
