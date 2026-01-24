@@ -1,3 +1,4 @@
+from math import ceil
 from typing import Type, TypeVar, Generic, List
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
@@ -32,7 +33,7 @@ class BaseService(Generic[ModelType]):
         self.db.refresh(obj)
         return obj
 
-    # ✅ 수정
+    # 수정
     def update(self, id: int, obj_in: dict) -> ModelType:
         obj = self.get(id)
 
@@ -49,7 +50,25 @@ class BaseService(Generic[ModelType]):
         self.db.delete(obj)
         self.db.commit()
 
-    # 페이징
-    def paginate(self, page: int = 1, size: int = 10):
-        query = self.db.query(self.model)
-        return paginate(query, page, size)
+    def get_query(self):
+        return self.db.query(self.model)
+
+    def paginate(self, query, page: int, size: int):
+        total = query.count()
+
+        items = (
+            query
+            .offset((page - 1) * size)
+            .limit(size)
+            .all()
+        )
+
+        total_pages = ceil(total / size) if total > 0 else 0
+
+        return {
+            "items": items,
+            "page": page,
+            "size": size,
+            "total": total,
+            "total_pages": total_pages
+        }

@@ -15,21 +15,30 @@ def create_waiting(dto: WaitingCreate, db: Session = Depends(get_db)):
     waiting = service.create_waiting()
     return success(waiting)
 
+@router.get("/waiting_list", response_model=ApiResponse[PageResponse[WaitingResponse]])
+def get_all_waiting_customers(
+    page: int = Query(1, ge=1),
+    size: int = Query(10, le=100),
+    db: Session = Depends(get_db),
+):
+    service = WaitingService(db)
+    return success(service.paginate_waiting(page, size))
+
+
+@router.get("/in_progress_list", response_model=ApiResponse[PageResponse[WaitingResponse]])
+def get_all_in_progress_customers(
+    page: int = Query(1, ge=1),
+    size: int = Query(10, le=100),
+    db: Session = Depends(get_db),
+):
+    service = WaitingService(db)
+    return success(service.paginate_in_progress(page, size))
+
 
 @router.get("/{customer_id}", response_model=ApiResponse[WaitingResponse])
 def get_customer(customer_id: int, db: Session = Depends(get_db)):
     service = WaitingService(db)
     return success(service.get(customer_id))
-
-
-@router.get("", response_model=ApiResponse[PageResponse[WaitingResponse]])
-def get_all_customers(
-    page: int = Query(1, ge=1),
-    size: int = Query(10, le=100),
-    db: Session = Depends(get_db)
-):
-    service = WaitingService(db)
-    return success(service.paginate(page, size))
 
 
 @router.put("/{customer_id}", response_model=ApiResponse[WaitingResponse])

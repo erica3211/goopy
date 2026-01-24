@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
 from app.core.enums import WaitingStatus
 
 class WaitingCreate(BaseModel):
@@ -12,9 +14,13 @@ class WaitingUpdate(BaseModel):
 class WaitingResponse(BaseModel):
     id: int
     customer_id: int
+    name: str
+    phone: str
     status: WaitingStatus
     queue_order: int
+    slot_id: Optional[int] = None
     estimated_minutes: int
+    started_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
