@@ -4,7 +4,6 @@ from app.models.waiting_model import Waiting
 from app.models.customer_model import Customer
 from app.core.enums import WaitingStatus
 
-
 class WaitingService(BaseService):
     model = Waiting
 
