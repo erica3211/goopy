@@ -10,11 +10,18 @@ from app.core.response import success
 
 router = APIRouter(prefix="/waitings", tags=["Waitings"])
 
-@router.post("/create", response_model=WaitingResponse)
-def create_waiting(dto: WaitingCreate, db: Session = Depends(get_db)):
+@router.post("/create",response_model=ApiResponse[WaitingResponse])
+def create_waiting(
+    customer_id: int,
+    estimated_minutes: int,
+    db: Session = Depends(get_db),
+):
     service = WaitingService(db)
-    waiting = service.create(dto.dict())
-    return success(waiting)
+    service.create_waiting(
+        customer_id=customer_id,
+        estimated_minutes=estimated_minutes,
+    )
+    return success()
 
 @router.get("/list", response_model=ApiResponse[PageResponse[WaitingResponse]])
 def get_waitings(

@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+from sqlalchemy import func
 from app.core.pagination import paginate
 from app.services.base_service import BaseService
 from app.models.waiting_model import Waiting
@@ -53,3 +55,22 @@ class WaitingService(BaseService):
             "estimated_minutes": row.estimated_minutes,
             "started_at": row.started_at,
         }
+        
+    def create_waiting(self, customer_id: int, estimated_minutes: int):
+        max_order = (
+            self.db.query(func.max(Waiting.queue_order))
+            .filter(Waiting.status == WaitingStatus.WAITING)
+            .scalar()
+        )
+
+        next_order = (max_order or 0) + 1
+
+        waiting = Waiting(
+            customer_id=customer_id,
+            status=WaitingStatus.WAITING,
+            queue_order=next_order,
+            estimated_minutes=estimated_minutes,
+        )
+
+        self.db.add(waiting)
+        self.db.commit()
