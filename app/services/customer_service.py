@@ -7,19 +7,19 @@ class CustomerService(BaseService):
     
 
     # 고객만의 규칙은 여기서 추가
-    def create_customer(self, obj_in: dict):
-        if self.db.query(Customer).filter(Customer.phone == obj_in["phone"]).first():
+    def create_customer(self, name: str, phone: str):
+        if self.db.query(Customer).filter(Customer.phone == phone).first():
             raise ValueError("이미 등록된 전화번호입니다.")
-        return self.create(obj_in)
-    
-    def get_by_phone(self, phone: str):
-        customer = (
-            self.db.query(Customer)
-            .filter(Customer.phone == phone)
-            .first()
-        )
 
-        if not customer:
-            raise HTTPException(status_code=404, detail="고객이 존재하지 않습니다")
-
+        customer = Customer(name=name, phone=phone)
+        self.db.add(customer)
+        self.db.commit()
+        self.db.refresh(customer)
         return customer
+        
+    def get_by_phone(self, phone: str):
+        return (
+        self.db.query(Customer)
+        .filter(Customer.phone == phone)
+        .first()
+    )

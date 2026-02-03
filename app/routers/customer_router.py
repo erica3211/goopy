@@ -11,26 +11,40 @@ from app.schemas.customer_schema import (
 from app.schemas.common import ApiResponse, PageResponse
 from app.core.response import success
 
-router = APIRouter(prefix="/customers", tags=["Customers"])
+router = APIRouter(tags=["Customers"])
 
 
-@router.post("", response_model=ApiResponse[CustomerResponse])
-def create_customer(dto: CustomerCreate, db: Session = Depends(get_db)):
+@router.post("/create_customer", response_model=ApiResponse[CustomerResponse])
+def create_customer(
+    dto: CustomerCreate,
+    db: Session = Depends(get_db),
+):
     service = CustomerService(db)
-    customer = service.create_customer(dto.dict())
+    customer = service.create_customer(
+        name=dto.name,
+        phone=dto.phone,
+    )
     return success(customer)
 
 
-@router.get("/by-phone", response_model=ApiResponse[CustomerResponse])
+@router.get("/get_customer/by-phone", response_model=ApiResponse[CustomerResponse])
 def get_customer_by_phone(
     phone: str = Query(..., description="전화번호"),
     db: Session = Depends(get_db),
 ):
     service = CustomerService(db)
-    return success(service.get_by_phone(phone))
+    customer = service.get_by_phone(phone)
+    
+    if not customer:
+        return success(
+            data=None,
+            message="고객이 존재하지 않습니다"
+        )
+        
+    return success(customer)
 
 
-@router.get("", response_model=ApiResponse[PageResponse[CustomerResponse]])
+@router.get("/get_all_customers", response_model=ApiResponse[PageResponse[CustomerResponse]])
 def get_all_customers(
     page: int = Query(1, ge=1),
     size: int = Query(10, le=100),
@@ -40,7 +54,7 @@ def get_all_customers(
     return success(service.paginate(page, size))
 
 
-@router.put("/{customer_id}", response_model=ApiResponse[CustomerResponse])
+@router.put("/update_customer/{customer_id}", response_model=ApiResponse[CustomerResponse])
 def update_customer(
     customer_id: int,
     dto: CustomerUpdate,
@@ -50,7 +64,7 @@ def update_customer(
     return success(service.update(customer_id, dto.dict(exclude_unset=True)))
 
 
-@router.delete("/{customer_id}", response_model=ApiResponse[None])
+@router.delete("/delete_customer/{customer_id}", response_model=ApiResponse[None])
 def delete_customer(customer_id: int, db: Session = Depends(get_db)):
     service = CustomerService(db)
     service.delete(customer_id)
