@@ -22,6 +22,8 @@ class WaitingService(BaseService):
                 Waiting.slot_id,
                 Waiting.estimated_minutes,
                 Waiting.started_at,
+                Waiting.created_at,
+                Waiting.updated_at,
             )
             .join(Customer, Customer.id == Waiting.customer_id)
         )
@@ -54,6 +56,8 @@ class WaitingService(BaseService):
             "slot_id": row.slot_id,
             "estimated_minutes": row.estimated_minutes,
             "started_at": row.started_at,
+            "created_at" : row.created_at,
+            "updated_at" : row.updated_at,
         }
         
     def create_waiting(self, customer_id: int, estimated_minutes: int):

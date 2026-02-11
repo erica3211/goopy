@@ -22,6 +22,8 @@ class WaitingResponse(BaseModel):
     slot_id: Optional[int] = None
     estimated_minutes: int
     started_at: Optional[datetime] = None
+    created_at : Optional[datetime] = None
+    updated_at : Optional[datetime] = None
 
     class Config:
         from_attributes = True
